@@ -4,7 +4,7 @@ const StatisticsTable = () => {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/students") // เรียก API FastAPI
+    fetch("https://fastapi-render-2wzq.onrender.com/students") // เรียก API FastAPI
       .then((res) => res.json())
       .then((data) => setStudents(data))
       .catch((error) => console.error("Error fetching data:", error));
