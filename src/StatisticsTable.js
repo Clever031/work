@@ -17,17 +17,32 @@ const StatisticsTable = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-  const handleAddStudent = () => {
+  const handleAddStudent = async () => {
     const newStudent = {
       department: newDepartment,
       plan: parseInt(newPlan, 10),
       apply: parseInt(newApply, 10),
       level: "ปวช",
+      save_data: new Date().toISOString(),
     };
-    setStudents([...students, newStudent]);
-    setNewDepartment("");
-    setNewPlan("");
-    setNewApply("");
+    try {
+      const response = await fetch("https://fastapi-render-2wzq.onrender.com/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newStudent),
+      });
+      if (response.ok) {
+        const addedStudent = await response.json();
+        setStudents([...students, { ...newStudent, _id: addedStudent.id }]);
+        setNewDepartment("");
+        setNewPlan("");
+        setNewApply("");
+      } else {
+        console.error("Failed to add student");
+      }
+    } catch (error) {
+      console.error("Error adding student:", error);
+    }
   };
 
   const handleEditClick = (index, department, apply, plan) => {
@@ -37,13 +52,31 @@ const StatisticsTable = () => {
     setEditedPlanValue(plan);
   };
 
-  const handleSaveClick = (index) => {
-    const updatedStudents = [...students];
-    updatedStudents[index].department = editedDepartment;
-    updatedStudents[index].apply = editedApplyValue;
-    updatedStudents[index].plan = editedPlanValue;
-    setStudents(updatedStudents);
-    setEditingIndex(null);
+  const handleSaveClick = async (index, id) => {
+    const updatedStudent = {
+      department: editedDepartment,
+      apply: parseInt(editedApplyValue, 10),
+      plan: parseInt(editedPlanValue, 10),
+      level: "ปวช",
+      save_data: new Date().toISOString(),
+    };
+    try {
+      const response = await fetch(`https://fastapi-render-2wzq.onrender.com/students/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedStudent),
+      });
+      if (response.ok) {
+        const updatedStudents = [...students];
+        updatedStudents[index] = { ...updatedStudents[index], ...updatedStudent };
+        setStudents(updatedStudents);
+        setEditingIndex(null);
+      } else {
+        console.error("Failed to update student");
+      }
+    } catch (error) {
+      console.error("Error updating student:", error);
+    }
   };
 
   return (
@@ -63,7 +96,7 @@ const StatisticsTable = () => {
             {students
               .filter((student) => student.level === "ปวช")
               .map((student, index) => (
-                <tr key={index}>
+                <tr key={student._id}>
                   <td>
                     {editingIndex === index ? (
                       <input
@@ -104,11 +137,17 @@ const StatisticsTable = () => {
                   </td>
                   <td>
                     {editingIndex === index ? (
-                      <button className="btn btn-success" onClick={() => handleSaveClick(index)}>
+                      <button
+                        className="btn btn-success"
+                        onClick={() => handleSaveClick(index, student._id)}
+                      >
                         บันทึก
                       </button>
                     ) : (
-                      <button className="btn btn-warning" onClick={() => handleEditClick(index, student.department, student.apply, student.plan)}>
+                      <button
+                        className="btn btn-warning"
+                        onClick={() => handleEditClick(index, student.department, student.apply, student.plan)}
+                      >
                         แก้ไข
                       </button>
                     )}
@@ -158,4 +197,5 @@ const StatisticsTable = () => {
 };
 
 export default StatisticsTable;
+
 
