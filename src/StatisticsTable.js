@@ -79,6 +79,21 @@ const StatisticsTable = () => {
     }
   };
 
+  const handleDeleteClick = async (id) => {
+    try {
+      const response = await fetch(`https://fastapi-render-2wzq.onrender.com/students/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setStudents(students.filter((student) => student._id !== id));
+      } else {
+        console.error("Failed to delete student");
+      }
+    } catch (error) {
+      console.error("Error deleting student:", error);
+    }
+  };
+
   return (
     <div className="mt-1">
       <h3 className="text-center text-primary">ระดับชั้น ปวช</h3>
@@ -138,18 +153,26 @@ const StatisticsTable = () => {
                   <td>
                     {editingIndex === index ? (
                       <button
-                        className="btn btn-success"
+                        className="btn btn-success me-2"
                         onClick={() => handleSaveClick(index, student._id)}
                       >
                         บันทึก
                       </button>
                     ) : (
-                      <button
-                        className="btn btn-warning"
-                        onClick={() => handleEditClick(index, student.department, student.apply, student.plan)}
-                      >
-                        แก้ไข
-                      </button>
+                      <>
+                        <button
+                          className="btn btn-warning me-2"
+                          onClick={() => handleEditClick(index, student.department, student.apply, student.plan)}
+                        >
+                          แก้ไข
+                        </button>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => handleDeleteClick(student._id)}
+                        >
+                          ลบ
+                        </button>
+                      </>
                     )}
                   </td>
                 </tr>
@@ -197,5 +220,3 @@ const StatisticsTable = () => {
 };
 
 export default StatisticsTable;
-
-
