@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 
 const StatisticsTable1 = () => {
   const [students, setStudents] = useState([]);
+  const [newDepartment, setNewDepartment] = useState("");
+  const [newPlan, setNewPlan] = useState("");
+  const [newApply, setNewApply] = useState("");
   const [editingIndex, setEditingIndex] = useState(null);
   const [editedDepartment, setEditedDepartment] = useState("");
   const [editedApplyValue, setEditedApplyValue] = useState("");
   const [editedPlanValue, setEditedPlanValue] = useState("");
-  const [newDepartment, setNewDepartment] = useState("");
-  const [newPlan, setNewPlan] = useState("");
-  const [newApply, setNewApply] = useState("");
 
   useEffect(() => {
     fetch("https://fastapi-render-2wzq.onrender.com/students")
@@ -79,6 +79,21 @@ const StatisticsTable1 = () => {
     }
   };
 
+  const handleDeleteClick = async (id) => {
+    try {
+      const response = await fetch(`https://fastapi-render-2wzq.onrender.com/students/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setStudents(students.filter((student) => student._id !== id));
+      } else {
+        console.error("Failed to delete student");
+      }
+    } catch (error) {
+      console.error("Error deleting student:", error);
+    }
+  };
+
   return (
     <div className="mt-1">
       <h3 className="text-center text-primary">ระดับชั้น ปวส</h3>
@@ -138,18 +153,26 @@ const StatisticsTable1 = () => {
                   <td>
                     {editingIndex === index ? (
                       <button
-                        className="btn btn-success"
+                        className="btn btn-success me-2"
                         onClick={() => handleSaveClick(index, student._id)}
                       >
                         บันทึก
                       </button>
                     ) : (
-                      <button
-                        className="btn btn-warning"
-                        onClick={() => handleEditClick(index, student.department, student.apply, student.plan)}
-                      >
-                        แก้ไข
-                      </button>
+                      <>
+                        <button
+                          className="btn btn-warning me-2"
+                          onClick={() => handleEditClick(index, student.department, student.apply, student.plan)}
+                        >
+                          แก้ไข
+                        </button>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => handleDeleteClick(student._id)}
+                        >
+                          ลบ
+                        </button>
+                      </>
                     )}
                   </td>
                 </tr>
