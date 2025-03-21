@@ -10,11 +10,15 @@ const StatisticsTable1 = () => {
   const [editedApplyValue, setEditedApplyValue] = useState("");
   const [editedPlanValue, setEditedPlanValue] = useState("");
 
-  useEffect(() => {
+  const fetchStudents = () => {
     fetch("https://fastapi-render-2wzq.onrender.com/students")
       .then((res) => res.json())
       .then((data) => setStudents(data))
       .catch((error) => console.error("Error fetching data:", error));
+  };
+
+  useEffect(() => {
+    fetchStudents();
   }, []);
 
   const handleAddStudent = async () => {
@@ -32,8 +36,7 @@ const StatisticsTable1 = () => {
         body: JSON.stringify(newStudent),
       });
       if (response.ok) {
-        const addedStudent = await response.json();
-        setStudents([...students, { ...newStudent, _id: addedStudent.id }]);
+        fetchStudents();
         setNewDepartment("");
         setNewPlan("");
         setNewApply("");
@@ -45,14 +48,7 @@ const StatisticsTable1 = () => {
     }
   };
 
-  const handleEditClick = (index, department, apply, plan) => {
-    setEditingIndex(index);
-    setEditedDepartment(department);
-    setEditedApplyValue(apply);
-    setEditedPlanValue(plan);
-  };
-
-  const handleSaveClick = async (index, id) => {
+  const handleSaveClick = async (id) => {
     const updatedStudent = {
       department: editedDepartment,
       apply: parseInt(editedApplyValue, 10),
@@ -67,9 +63,7 @@ const StatisticsTable1 = () => {
         body: JSON.stringify(updatedStudent),
       });
       if (response.ok) {
-        const updatedStudents = [...students];
-        updatedStudents[index] = { ...updatedStudents[index], ...updatedStudent };
-        setStudents(updatedStudents);
+        fetchStudents();
         setEditingIndex(null);
       } else {
         console.error("Failed to update student");
@@ -85,13 +79,20 @@ const StatisticsTable1 = () => {
         method: "DELETE",
       });
       if (response.ok) {
-        setStudents(students.filter((student) => student._id !== id));
+        fetchStudents();
       } else {
         console.error("Failed to delete student");
       }
     } catch (error) {
       console.error("Error deleting student:", error);
     }
+  };
+
+  const handleEditClick = (index, department, apply, plan) => {
+    setEditingIndex(index);
+    setEditedDepartment(department);
+    setEditedApplyValue(apply);
+    setEditedPlanValue(plan);
   };
 
   return (
@@ -154,7 +155,7 @@ const StatisticsTable1 = () => {
                     {editingIndex === index ? (
                       <button
                         className="btn btn-success me-2"
-                        onClick={() => handleSaveClick(index, student._id)}
+                        onClick={() => handleSaveClick(student._id)}
                       >
                         บันทึก
                       </button>
@@ -177,7 +178,6 @@ const StatisticsTable1 = () => {
                   </td>
                 </tr>
               ))}
-            {/* Input Row */}
             <tr>
               <td>
                 <input
