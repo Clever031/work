@@ -3,26 +3,48 @@ import React, { useEffect, useState } from "react";
 const StatisticsTable1 = () => {
   const [students, setStudents] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
-  const [editedPlanValue, setEditedPlanValue] = useState("");
-  const [editedApplyValue, setEditedApplyValue] = useState("");
+  const [editedDepartment, setEditedDepartment] = useState("");
+  const [editedPlan, setEditedPlan] = useState("");
+  const [editedApply, setEditedApply] = useState("");
+  const [newDepartment, setNewDepartment] = useState("");
+  const [newPlan, setNewPlan] = useState("");
+  const [newApply, setNewApply] = useState("");
 
   useEffect(() => {
-    fetch("https://fastapi-render-2wzq.onrender.com/students") // เรียก API FastAPI
+    fetch("https://fastapi-render-2wzq.onrender.com/students")
       .then((res) => res.json())
       .then((data) => setStudents(data))
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-  const handleEditClick = (index, plan, apply) => {
+  const handleAddStudent = () => {
+    const newStudent = {
+      department: newDepartment,
+      plan: parseInt(newPlan, 10),
+      apply: parseInt(newApply, 10),
+      level: "ปวส",
+    };
+    setStudents([...students, newStudent]);
+    setNewDepartment("");
+    setNewPlan("");
+    setNewApply("");
+  };
+
+  const handleEditClick = (index, student) => {
     setEditingIndex(index);
-    setEditedPlanValue(plan);
-    setEditedApplyValue(apply);
+    setEditedDepartment(student.department);
+    setEditedPlan(student.plan);
+    setEditedApply(student.apply);
   };
 
   const handleSaveClick = (index) => {
     const updatedStudents = [...students];
-    updatedStudents[index].plan = editedPlanValue;
-    updatedStudents[index].apply = editedApplyValue;
+    updatedStudents[index] = {
+      ...updatedStudents[index],
+      department: editedDepartment,
+      plan: parseInt(editedPlan, 10),
+      apply: parseInt(editedApply, 10),
+    };
     setStudents(updatedStudents);
     setEditingIndex(null);
   };
@@ -42,47 +64,91 @@ const StatisticsTable1 = () => {
           </thead>
           <tbody>
             {students
-              .filter((student) => student.level === "ปวส") // กรองเฉพาะ ปวส
+              .filter((student) => student.level === "ปวส")
               .map((student, index) => (
                 <tr key={index}>
-                  <td>{student.department}</td>
-                  <td>
-                    {editingIndex === index ? (
-                      <input
-                        type="number"
-                        value={editedPlanValue}
-                        onChange={(e) => setEditedPlanValue(e.target.value)}
-                        className="form-control"
-                      />
-                    ) : (
-                      student.plan
-                    )}
-                  </td>
-                  <td>
-                    {editingIndex === index ? (
-                      <input
-                        type="number"
-                        value={editedApplyValue}
-                        onChange={(e) => setEditedApplyValue(e.target.value)}
-                        className="form-control"
-                      />
-                    ) : (
-                      student.apply
-                    )}
-                  </td>
-                  <td>
-                    {editingIndex === index ? (
-                      <button className="btn btn-success" onClick={() => handleSaveClick(index)}>
-                        บันทึก
-                      </button>
-                    ) : (
-                      <button className="btn btn-warning" onClick={() => handleEditClick(index, student.plan, student.apply)}>
-                        แก้ไข
-                      </button>
-                    )}
-                  </td>
+                  {editingIndex === index ? (
+                    <>
+                      <td>
+                        <input
+                          type="text"
+                          value={editedDepartment}
+                          onChange={(e) => setEditedDepartment(e.target.value)}
+                          className="form-control"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={editedPlan}
+                          onChange={(e) => setEditedPlan(e.target.value)}
+                          className="form-control"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={editedApply}
+                          onChange={(e) => setEditedApply(e.target.value)}
+                          className="form-control"
+                        />
+                      </td>
+                      <td>
+                        <button className="btn btn-success" onClick={() => handleSaveClick(index)}>
+                          บันทึก
+                        </button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td>{student.department}</td>
+                      <td>{student.plan}</td>
+                      <td>{student.apply}</td>
+                      <td>
+                        <button
+                          className="btn btn-warning"
+                          onClick={() => handleEditClick(index, student)}
+                        >
+                          แก้ไข
+                        </button>
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
+            {/* Input Row */}
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  value={newDepartment}
+                  onChange={(e) => setNewDepartment(e.target.value)}
+                  className="form-control"
+                  placeholder="สาขาวิชา"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={newPlan}
+                  onChange={(e) => setNewPlan(e.target.value)}
+                  className="form-control"
+                  placeholder="แผนรับ"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={newApply}
+                  onChange={(e) => setNewApply(e.target.value)}
+                  className="form-control"
+                  placeholder="ยอดรับ"
+                />
+              </td>
+              <td>
+                <button className="btn btn-success" onClick={handleAddStudent}>บันทึก</button>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -91,4 +157,5 @@ const StatisticsTable1 = () => {
 };
 
 export default StatisticsTable1;
+
 
