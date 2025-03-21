@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 
 const StatisticsTable = () => {
   const [students, setStudents] = useState([]);
+  const [newDepartment, setNewDepartment] = useState("");
+  const [newPlan, setNewPlan] = useState("");
+  const [newApply, setNewApply] = useState("");
   const [editingIndex, setEditingIndex] = useState(null);
+  const [editedDepartment, setEditedDepartment] = useState("");
   const [editedApplyValue, setEditedApplyValue] = useState("");
   const [editedPlanValue, setEditedPlanValue] = useState("");
 
@@ -13,14 +17,29 @@ const StatisticsTable = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-  const handleEditClick = (index, apply, plan) => {
+  const handleAddStudent = () => {
+    const newStudent = {
+      department: newDepartment,
+      plan: parseInt(newPlan, 10),
+      apply: parseInt(newApply, 10),
+      level: "ปวช",
+    };
+    setStudents([...students, newStudent]);
+    setNewDepartment("");
+    setNewPlan("");
+    setNewApply("");
+  };
+
+  const handleEditClick = (index, department, apply, plan) => {
     setEditingIndex(index);
+    setEditedDepartment(department);
     setEditedApplyValue(apply);
     setEditedPlanValue(plan);
   };
 
   const handleSaveClick = (index) => {
     const updatedStudents = [...students];
+    updatedStudents[index].department = editedDepartment;
     updatedStudents[index].apply = editedApplyValue;
     updatedStudents[index].plan = editedPlanValue;
     setStudents(updatedStudents);
@@ -45,14 +64,26 @@ const StatisticsTable = () => {
               .filter((student) => student.level === "ปวช")
               .map((student, index) => (
                 <tr key={index}>
-                  <td>{student.department}</td>
+                  <td>
+                    {editingIndex === index ? (
+                      <input
+                        type="text"
+                        value={editedDepartment}
+                        onChange={(e) => setEditedDepartment(e.target.value)}
+                        className="form-control form-control-sm"
+                      />
+                    ) : (
+                      student.department
+                    )}
+                  </td>
                   <td>
                     {editingIndex === index ? (
                       <input
                         type="number"
                         value={editedPlanValue}
                         onChange={(e) => setEditedPlanValue(e.target.value)}
-                        className="form-control"
+                        className="form-control form-control-sm"
+                        style={{ width: "80px", margin: "0 auto" }}
                       />
                     ) : (
                       student.plan
@@ -64,7 +95,8 @@ const StatisticsTable = () => {
                         type="number"
                         value={editedApplyValue}
                         onChange={(e) => setEditedApplyValue(e.target.value)}
-                        className="form-control"
+                        className="form-control form-control-sm"
+                        style={{ width: "80px", margin: "0 auto" }}
                       />
                     ) : (
                       student.apply
@@ -76,13 +108,48 @@ const StatisticsTable = () => {
                         บันทึก
                       </button>
                     ) : (
-                      <button className="btn btn-warning" onClick={() => handleEditClick(index, student.apply, student.plan)}>
+                      <button className="btn btn-warning" onClick={() => handleEditClick(index, student.department, student.apply, student.plan)}>
                         แก้ไข
                       </button>
                     )}
                   </td>
                 </tr>
               ))}
+            {/* Input Row */}
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  value={newDepartment}
+                  onChange={(e) => setNewDepartment(e.target.value)}
+                  className="form-control"
+                  placeholder="สาขาวิชา"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={newPlan}
+                  onChange={(e) => setNewPlan(e.target.value)}
+                  className="form-control"
+                  placeholder="แผนรับ"
+                />
+              </td>
+              <td>
+                <input
+                  type="number"
+                  value={newApply}
+                  onChange={(e) => setNewApply(e.target.value)}
+                  className="form-control"
+                  placeholder="ยอดรับ"
+                />
+              </td>
+              <td>
+                <button className="btn btn-success" onClick={handleAddStudent}>
+                  บันทึก
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -91,3 +158,4 @@ const StatisticsTable = () => {
 };
 
 export default StatisticsTable;
+
