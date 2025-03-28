@@ -3,8 +3,7 @@ import "./App.css";
 import { useState } from "react";
 import StatisticsTable from "./StatisticsTable";
 import StatisticsTable1 from "./StatisticsTable1";
-import Sta  from "./Sta";
-import Sta1 from "./Sta1";
+
 
 function App() {
   const [selectedTable, setSelectedTable] = useState("ปวช");
@@ -40,7 +39,7 @@ function App() {
 
       {/* แสดงข้อมูลตามที่เลือก */}
       {selectedTable === "ปวช" ? <StatisticsTable/> : <StatisticsTable1 />}
-      {selectedTable === "ปวช" ? <Sta /> : <Sta1 />}
+   
     </div>
     
   );
