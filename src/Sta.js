@@ -14,6 +14,12 @@ const Sta = () => {
     fetchStudents();
   }, []);
 
+  const filteredStudents = students.filter((student) => student.level === "ปวช");
+
+  // คำนวณผลรวม
+  const totalPlan = filteredStudents.reduce((sum, s) => sum + parseInt(s.plan), 0);
+  const totalApply = filteredStudents.reduce((sum, s) => sum + parseInt(s.apply), 0);
+
   return (
     <div className="mt-1">
       <h3 className="text-center text-primary">ระดับชั้น ปวช</h3>
@@ -27,16 +33,21 @@ const Sta = () => {
             </tr>
           </thead>
           <tbody>
-            {students
-              .filter((student) => student.level === "ปวช")
-              .map((student) => (
-                <tr key={student._id}>
-                  <td>{student.department}</td>
-                  <td>{student.plan}</td>
-                  <td>{student.apply}</td>
-                </tr>
-              ))}
+            {filteredStudents.map((student) => (
+              <tr key={student._id}>
+                <td>{student.department}</td>
+                <td>{student.plan}</td>
+                <td>{student.apply}</td>
+              </tr>
+            ))}
           </tbody>
+          <tfoot className="table-secondary">
+            <tr>
+              <td><strong>รวม</strong></td>
+              <td><strong>{totalPlan}</strong></td>
+              <td><strong>{totalApply}</strong></td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
